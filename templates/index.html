@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>fx4or</title>
+        <link rel="icon" href="/static/img/favicon.ico" />
+        <meta name="description" content="Fast x-ray exposure within operating room">
+        <meta name="author" content="Julien Bert">
+    
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+
+        <!-- Babylon.js -->
+        <script src="https://cdn.babylonjs.com/babylon.js"></script>
+        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <!-- <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script> -->
+
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        function deg2rad(degrees)
+        {
+            var pi = Math.PI;
+            return degrees * (pi/180);
+        }
+
+        // address = /get/ct
+        function sendJSONRequest(msg, address)
+        {
+            return new Promise(function(resolve, reject) {
+                var fullAdr = window.origin + address;
+            
+                console.log(msg);
+                console.log(fullAdr);
+
+                fetch(fullAdr, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(msg),
+                })
+                .then(res => res.json())
+                .then((out) => {
+                    console.log('in Req. function ', out);
+                    resolve(out);
+                })
+                .catch(err => { 
+                    // throw err;
+                    reject(err);
+                });
+            });
+            
+            
+        }
+
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        // Add your code here matching the playground format
+        const createScene = function () {
+    
+            const scene = new BABYLON.Scene(engine);
+            scene.clearColor = BABYLON.Color3.White();  
+
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+            var camera = new BABYLON.ArcRotateCamera("camera", 90*(Math.PI/180.0), 70*(Math.PI/180.0), 5, new BABYLON.Vector3(-0.7, 1, 0), scene);
+            camera.upperBetaLimit = 90*(Math.PI/180.0);
+            camera.lowerRadiusLimit = 2;
+	        camera.upperRadiusLimit = 10;
+            camera.attachControl(canvas, true);
+
+            scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
+            // scene.fogDensity = 0.05;
+            scene.fogStart = 5.0;
+            scene.fogEnd = 50.0;
+            scene.fogColor = new BABYLON.Color3(1.0, 1.0, 1.0);           
+
+            let meshC;
+            BABYLON.SceneLoader.ImportMesh(["Arm"], "static/models/", "cios.gltf", scene, function (meshes) {
+                meshC = meshes[0];
+                // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
+                meshC.rotation = new BABYLON.Vector3(0, 0, 0);
+                // meshC.position = new BABYLON.Vector3(0, 0, 0);
+                // meshC.rotation.y = deg2rad(180);
+                // meshC.position = new BABYLON.Vector3(-0.6084136962890625, 0.9484025239944458, 0);
+                meshC.setPivotPoint(new BABYLON.Vector3(-0.6084136962890625, 0.9484025239944458, 0));
+                
+                // console.info(meshBody); 
+            });
+
+            let meshJoint;
+            BABYLON.SceneLoader.ImportMesh(["Joint"], "static/models/", "cios.gltf", scene, function (meshes) {
+                meshJoint = meshes[0];
+                // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
+                meshJoint.rotation = new BABYLON.Vector3(0, 0, 0);
+                meshJoint.setPivotPoint(new BABYLON.Vector3(-0.6084136962890625, 0.9484025239944458, 0));
+                meshJoint.addChild(meshC);
+                // meshJoint.rotation.y = deg2rad(180);
+                // console.info(meshC);     
+            });
+
+            let meshBody;
+            BABYLON.SceneLoader.ImportMesh(["Body"], "static/models/", "cios.gltf", scene, function (meshes) {
+                meshBody = meshes[0];   
+                // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
+                meshBody.rotation = new BABYLON.Vector3(0, 0, 0);
+                // meshBody.rotation.y = deg2rad(180);
+                // meshBody.name = "Body";
+                // console.info(meshBody);         
+            });
+
+            let meshStand;
+            BABYLON.SceneLoader.ImportMesh(["Stand"], "static/models/", "couch.gltf", scene, function (meshes) {
+                meshStand = meshes[0];   
+                // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
+                meshStand.rotation = new BABYLON.Vector3(0, 0, 0);        
+            });
+
+            let meshCouch;
+            BABYLON.SceneLoader.ImportMesh(["Couch"], "static/models/", "couch.gltf", scene, function (meshes) {
+                meshCouch = meshes[0];   
+                // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
+                meshCouch.rotation = new BABYLON.Vector3(0, 0, 0);        
+            });
+
+            let meshGuy;
+            BABYLON.SceneLoader.ImportMesh(["Body"], "static/models/", "couch.gltf", scene, function (meshes) {
+                meshGuy = meshes[0];   
+                // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
+                meshGuy.rotation = new BABYLON.Vector3(0, 0, 0);        
+            });
+           
+            // // Second test to show scattering
+            const fluenceMapMatGrd = new BABYLON.StandardMaterial("fluenceMapMatGrd");
+            // fluenceMapMatGrd.diffuseTexture = new BABYLON.Texture("/data/test_mip_y.png");
+            // fluenceMapMatGrd.diffuseTexture.hasAlpha = true;
+            fluenceMapMatGrd.alpha = 0.6;
+            fluenceMapMatGrd.useAlphaFromDiffuseTexture = true;
+            
+            const scatterMapGrd = BABYLON.MeshBuilder.CreateGround("scatterMapGrd", {width:3, height:3});
+            scatterMapGrd.position.y = 0.01;
+            scatterMapGrd.position.x = -0.75;
+            scatterMapGrd.rotation.y = BABYLON.Tools.ToRadians(90);
+            scatterMapGrd.material = fluenceMapMatGrd;
+            scatterMapGrd.material.specularColor = new BABYLON.Color3(0., 0., 0.);
+            
+            // Ground mat
+
+            var matGridWhiteBlack = new BABYLON.GridMaterial("groundMaterial", scene);
+            matGridWhiteBlack.majorUnitFrequency = 5;
+            matGridWhiteBlack.mainColor = new BABYLON.Color3(1, 1, 1);
+            matGridWhiteBlack.lineColor = new BABYLON.Color3(0, 0, 0);
+            matGridWhiteBlack.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            // Ground
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", {width:100, height:100});
+            ground.material = matGridWhiteBlack;
+
+            // GUI
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+            var logoImage = new BABYLON.GUI.Image("logoImage", "static/img/LaTIM.png");
+            logoImage.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            logoImage.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            logoImage.widthInPixels = 100;
+            logoImage.heightInPixels = 100 * (809/1004); // image ratio
+            logoImage.leftInPixels = 20;
+            logoImage.topInPixels = 20;
+            advancedTexture.addControl(logoImage);
+
+            var panel = new BABYLON.GUI.StackPanel();
+            panel.width = "220px";
+            panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            advancedTexture.addControl(panel);
+
+            var hCAUCRA = new BABYLON.GUI.TextBlock();
+            hCAUCRA.text = "CAU-CRA: 0 deg";
+            hCAUCRA.height = "30px";
+            hCAUCRA.color = "black";
+            panel.addControl(hCAUCRA); 
+
+            var sliderCAUCRA = new BABYLON.GUI.Slider();
+            sliderCAUCRA.minimum = BABYLON.Tools.ToRadians(-90);
+            sliderCAUCRA.maximum = BABYLON.Tools.ToRadians(90);
+            sliderCAUCRA.value = 0;
+            sliderCAUCRA.height = "20px";
+            sliderCAUCRA.width = "200px";
+            sliderCAUCRA.color = "black";
+            sliderCAUCRA.borderColor = "white";
+            sliderCAUCRA.background = "#777777";
+            sliderCAUCRA.onValueChangedObservable.add(function(value) {
+                hCAUCRA.text = "CAU-CRA: " + (BABYLON.Tools.ToDegrees(value) | 0) + " deg";
+                if (meshJoint) {
+                    meshJoint.rotation.x = value;
+                }
+            });
+            panel.addControl(sliderCAUCRA);
+            
+            var hLAORAO = new BABYLON.GUI.TextBlock();
+            hLAORAO.text = "LAO-RAO: 0 deg";
+            hLAORAO.height = "30px";
+            hLAORAO.color = "black";
+            panel.addControl(hLAORAO); 
+
+            var sliderLAORAO = new BABYLON.GUI.Slider();
+            sliderLAORAO.minimum = BABYLON.Tools.ToRadians(140);
+            sliderLAORAO.maximum = BABYLON.Tools.ToRadians(220);
+            sliderLAORAO.value = BABYLON.Tools.ToRadians(180);
+            sliderLAORAO.height = "20px";
+            sliderLAORAO.width = "200px";
+            sliderLAORAO.color = "black";
+            sliderLAORAO.borderColor = "white";
+            sliderLAORAO.background = "#777777";
+            sliderLAORAO.onValueChangedObservable.add(function(value) {
+                hLAORAO.text = "LAO-RAO: " + (BABYLON.Tools.ToDegrees(value)-180 | 0) + " deg";
+                if (meshC) {
+                    meshC.rotation.z = value;
+                }
+            });
+            panel.addControl(sliderLAORAO);
+
+            var butReset = BABYLON.GUI.Button.CreateSimpleButton("butInit", "Reset");
+            butReset.width = "150px"
+            butReset.height = "40px";
+            butReset.color = "black";
+            butReset.cornerRadius = 20;
+            butReset.background = "white";
+            butReset.onPointerUpObservable.add(function() {
+                sliderCAUCRA.value = 0;
+                if (meshJoint) {
+                    meshJoint.rotation.x = 0;
+                }
+                sliderLAORAO.value = BABYLON.Tools.ToRadians(180);
+                if (meshC) {
+                    meshC.rotation.z = BABYLON.Tools.ToRadians(180);
+                } 
+            });
+            panel.addControl(butReset);
+
+            var butGet = BABYLON.GUI.Button.CreateSimpleButton("butGet", "Get");
+            butGet.width = "150px"
+            butGet.height = "40px";
+            butGet.color = "black";
+            butGet.cornerRadius = 20;
+            butGet.background = "yellow";
+            butGet.onPointerUpObservable.add(function() {
+                
+                var msg = {
+                    "LAORAO": BABYLON.Tools.ToDegrees(sliderLAORAO.value),
+                    "CAUCRA": BABYLON.Tools.ToDegrees(sliderCAUCRA.value)
+                };
+                var address = "/get-fake-mip-scattering";
+
+                let promise = sendJSONRequest(msg, address);
+                promise.then(
+                    response => {
+                        console.log('This is the response: ', response);
+
+                        fluenceMapMatGrd.diffuseTexture = new BABYLON.RawTexture2DArray(response["data"], 
+                                                                                        response["sizex"], 
+                                                                                        response["sizey"], 
+                                                                                        3, BABYLON.Engine.TEXTUREFORMAT_RGB,
+                                                                                        scene,
+                                                                                        false,
+                                                                                        false,
+                                                                                        BABYLON.Texture.NEAREST_SAMPLINGMODE);
+                        // fluenceMapMatGrd.diffuseTexture = new BABYLON.Texture("/data/test_mip_y.png");
+                        // fluenceMapMatGrd.diffuseTexture.hasAlpha = true;
+
+                    },
+                    err => alert(err)
+                );
+                
+            });
+            panel.addControl(butGet);
+
+            return scene;
+        };
+
+        const scene = createScene(); //Call the createScene function
+
+        engine.runRenderLoop(function() {
+            scene.render();
+        });
+        
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
