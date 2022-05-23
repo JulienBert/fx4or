@@ -243,6 +243,67 @@
                 }
             });
             panel.addControl(sliderLAORAO);
+            
+            
+            var htransl = new BABYLON.GUI.TextBlock();
+            htransl.text = "TRANSLATION X: 0 cm";
+            htransl.height = "30px";
+            htransl.color = "black";
+            panel.addControl(htransl); 
+            
+            
+            var slidertransl = new BABYLON.GUI.Slider();
+            slidertransl.minimum = BABYLON.Tools.ToRadians(-45);
+            slidertransl.maximum = BABYLON.Tools.ToRadians(45);
+            slidertransl.value = 0;
+            slidertransl.height = "20px";
+            slidertransl.width = "200px";
+            slidertransl.color = "black";
+            slidertransl.borderColor = "white";
+            slidertransl.background = "#777777";
+            slidertransl.onValueChangedObservable.add(function(value) {
+                htransl.text = "TRANSLATION X: " + (BABYLON.Tools.ToDegrees(value) | 0) + " cm";
+                if (meshCouch) {
+                    meshCouch.position.z = value;
+                    meshGuy.position.z = value;
+                }
+            });
+            panel.addControl(slidertransl);
+
+
+            
+            var htranssl = new BABYLON.GUI.TextBlock();
+            htranssl.text = "TENSION DU TUBE: 0 V";
+            htranssl.height = "30px";
+            htranssl.color = "black";
+            panel.addControl(htranssl); 
+            
+            
+            var slidertranssl = new BABYLON.GUI.Slider();
+            slidertranssl.minimum = BABYLON.Tools.ToRadians(0);
+            slidertranssl.maximum = BABYLON.Tools.ToRadians(100);
+            slidertranssl.value = 0;
+            slidertranssl.height = "20px";
+            slidertranssl.width = "200px";
+            slidertranssl.color = "black";
+            slidertranssl.borderColor = "white";
+            slidertranssl.background = "#777777";
+            slidertranssl.onValueChangedObservable.add(function(value) {
+                htranssl.text = "TENSION DU TUBE: " + (BABYLON.Tools.ToDegrees(value) | 0) + " V";
+                if (meshCouch) {
+                    
+                }
+            });
+            panel.addControl(slidertranssl);
+            
+            
+            
+            
+            
+            
+            
+            
+
 
             var butReset = BABYLON.GUI.Button.CreateSimpleButton("butInit", "Reset");
             butReset.width = "150px"
@@ -255,6 +316,19 @@
                 if (meshJoint) {
                     meshJoint.rotation.x = 0;
                 }
+                
+                slidertransl.value = 0;
+                if (meshCouch) {
+                    meshCouch.rotation.z = 0;
+                }
+                
+
+                   slidertranssl.value = 0;
+                   if (meshCouch) {
+                       meshCouch.rotation.z = 0;
+                   }
+
+                
                 sliderLAORAO.value = BABYLON.Tools.ToRadians(180);
                 if (meshC) {
                     meshC.rotation.z = BABYLON.Tools.ToRadians(180);
@@ -272,7 +346,9 @@
                 
                 var msg = {
                     "LAORAO": BABYLON.Tools.ToDegrees(sliderLAORAO.value),
-                    "CAUCRA": BABYLON.Tools.ToDegrees(sliderCAUCRA.value)
+                    "CAUCRA": BABYLON.Tools.ToDegrees(sliderCAUCRA.value),
+                    "TRANSLATION X": BABYLON.Tools.ToDegrees(slidertransl.value),
+                    "TENSION DU TUBE": BABYLON.Tools.ToDegrees(slidertranssl.value),
                 };
                 var address = "/get-fake-mip-scattering";
 
