@@ -120,7 +120,8 @@
                 meshJoint.setPivotPoint(new BABYLON.Vector3(-0.6084136962890625, 0.9484025239944458, 0));
                 meshJoint.addChild(meshC);
                 // meshJoint.rotation.y = deg2rad(180);
-                // console.info(meshC);     
+                // console.info(meshC);  
+               
             });
 
             let meshBody;
@@ -130,55 +131,67 @@
                 meshBody.rotation = new BABYLON.Vector3(0, 0, 0);
                 // meshBody.rotation.y = deg2rad(180);
                 // meshBody.name = "Body";
-                // console.info(meshBody);         
+                // console.info(meshBody);  
+                     
             });
 
             let meshStand;
             BABYLON.SceneLoader.ImportMesh(["Stand"], "static/models/", "couch.gltf", scene, function (meshes) {
                 meshStand = meshes[0];   
                 // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
-                meshStand.rotation = new BABYLON.Vector3(0, 0, 0);        
+                meshStand.rotation = new BABYLON.Vector3(0, 0, 0); 
+                      
             });
+
+     
 
             let meshCouch;
             BABYLON.SceneLoader.ImportMesh(["Couch"], "static/models/", "couch.gltf", scene, function (meshes) {
                 meshCouch = meshes[0];   
                 // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
-                meshCouch.rotation = new BABYLON.Vector3(0, 0, 0);        
+                meshCouch.rotation = new BABYLON.Vector3(0, 0, 0);     
+                  
             });
 
             let meshGuy;
             BABYLON.SceneLoader.ImportMesh(["Body"], "static/models/", "couch.gltf", scene, function (meshes) {
                 meshGuy = meshes[0];   
                 // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
-                meshGuy.rotation = new BABYLON.Vector3(0, 0, 0);        
+                meshGuy.rotation = new BABYLON.Vector3(0, 0, 0);       
+                
             });
            
-            // // Second test to show scattering
-            const fluenceMapMatGrd = new BABYLON.StandardMaterial("fluenceMapMatGrd");
-            // fluenceMapMatGrd.diffuseTexture = new BABYLON.Texture("/data/test_mip_y.png");
-            // fluenceMapMatGrd.diffuseTexture.hasAlpha = true;
-            fluenceMapMatGrd.alpha = 0.6;
-            fluenceMapMatGrd.useAlphaFromDiffuseTexture = true;
+             // // Second test to show scattering
+             var ground = BABYLON.Mesh.CreateGround("ground1", 2, 2, 0, scene);
+    
+            // Create and tweak the background material.
+            var backgroundMaterial = new BABYLON.BackgroundMaterial("backgroundMaterial", scene);
+            backgroundMaterial.diffuseTexture = new BABYLON.Texture("static/img/test.png", scene);
+          
+            ground.material = backgroundMaterial;
             
-            const scatterMapGrd = BABYLON.MeshBuilder.CreateGround("scatterMapGrd", {width:3, height:3});
-            scatterMapGrd.position.y = 0.01;
-            scatterMapGrd.position.x = -0.75;
-            scatterMapGrd.rotation.y = BABYLON.Tools.ToRadians(90);
-            scatterMapGrd.material = fluenceMapMatGrd;
-            scatterMapGrd.material.specularColor = new BABYLON.Color3(0., 0., 0.);
+            ground.position.y = 0.001;
+            ground.position.x = -0.7;
             
-            // Ground mat
+             // Ground mat
 
-            var matGridWhiteBlack = new BABYLON.GridMaterial("groundMaterial", scene);
-            matGridWhiteBlack.majorUnitFrequency = 5;
-            matGridWhiteBlack.mainColor = new BABYLON.Color3(1, 1, 1);
-            matGridWhiteBlack.lineColor = new BABYLON.Color3(0, 0, 0);
-            matGridWhiteBlack.specularColor = new BABYLON.Color3(0, 0, 0);
+             var matGridWhiteBlack = new BABYLON.GridMaterial("groundMaterial", scene);
+             matGridWhiteBlack.majorUnitFrequency = 5;
+             matGridWhiteBlack.mainColor = new BABYLON.Color3(1, 1, 1);
+             matGridWhiteBlack.lineColor = new BABYLON.Color3(0, 0, 0);
+             matGridWhiteBlack.specularColor = new BABYLON.Color3(0, 0, 0);
 
-            // Ground
-            var ground = BABYLON.MeshBuilder.CreateGround("ground", {width:100, height:100});
-            ground.material = matGridWhiteBlack;
+             // Ground
+             var ground = BABYLON.MeshBuilder.CreateGround("ground", {width:100, height:100});
+             ground.material = matGridWhiteBlack;
+
+
+            //Test
+            
+           var mat = new BABYLON.StandardMaterial("materiau_1",scene);
+           mat.diffuseTexture=new BABYLON.Texture("static/img/test.png",scene); 
+           mat.diffuseTexture.hasAlpha = true;
+         
 
             // GUI
             var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -197,6 +210,31 @@
             panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
             panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
             advancedTexture.addControl(panel);
+            
+            
+            
+            //colorbar
+            
+            
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+            var logoImage = new BABYLON.GUI.Image("logoImage", "static/img/testt.png");
+            logoImage.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            logoImage.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            logoImage.widthInPixels = 100;
+            logoImage.heightInPixels = 350 // image ratio
+            logoImage.leftInPixels = 300;
+            logoImage.topInPixels = 400;
+            advancedTexture.addControl(logoImage);
+
+            var panel = new BABYLON.GUI.StackPanel();
+            panel.width = "420px";
+            panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            advancedTexture.addControl(panel);
+            
+            
+            
 
             var hCAUCRA = new BABYLON.GUI.TextBlock();
             hCAUCRA.text = "CAU-CRA: 0 deg";
@@ -253,8 +291,8 @@
             
             
             var slidertransl = new BABYLON.GUI.Slider();
-            slidertransl.minimum = BABYLON.Tools.ToRadians(-45);
-            slidertransl.maximum = BABYLON.Tools.ToRadians(45);
+            slidertransl.minimum = BABYLON.Tools.ToRadians(-10);
+            slidertransl.maximum = BABYLON.Tools.ToRadians(10);
             slidertransl.value = 0;
             slidertransl.height = "20px";
             slidertransl.width = "200px";
@@ -270,7 +308,60 @@
             });
             panel.addControl(slidertransl);
 
+        
+            var htransll = new BABYLON.GUI.TextBlock();
+            htransll.text = "TRANSLATION Y: 0 cm";
+            htransll.height = "30px";
+            htransll.color = "black";
+            panel.addControl(htransll); 
+            
+            
+            var slidertransll = new BABYLON.GUI.Slider();
+            slidertransll.minimum = BABYLON.Tools.ToRadians(-10);
+            slidertransll.maximum = BABYLON.Tools.ToRadians(10);
+            slidertransll.value = 0;
+            slidertransll.height = "20px";
+            slidertransll.width = "200px";
+            slidertransll.color = "black";
+            slidertransll.borderColor = "white";
+            slidertransll.background = "#777777";
+            slidertransll.onValueChangedObservable.add(function(value) {
+                htransll.text = "TRANSLATION Y: " + (BABYLON.Tools.ToDegrees(value) | 0) + " cm";
+                if (meshCouch) {
+                    meshCouch.position.y = value;
+                    meshGuy.position.y = value;
+                    meshStand.position.y = value;
+                }
+            });
+            panel.addControl(slidertransll);
 
+            var htranslll = new BABYLON.GUI.TextBlock();
+            htranslll.text = "TRANSLATION Z: 0 cm";
+            htranslll.height = "30px";
+            htranslll.color = "black";
+            panel.addControl(htranslll); 
+            
+            
+            var slidertranslll = new BABYLON.GUI.Slider();
+            slidertranslll.minimum = BABYLON.Tools.ToRadians(-10);
+            slidertranslll.maximum = BABYLON.Tools.ToRadians(10);
+            slidertranslll.value = 0;
+            slidertranslll.height = "20px";
+            slidertranslll.width = "200px";
+            slidertranslll.color = "black";
+            slidertranslll.borderColor = "white";
+            slidertranslll.background = "#777777";
+            slidertranslll.onValueChangedObservable.add(function(value) {
+                htranslll.text = "TRANSLATION Z: " + (BABYLON.Tools.ToDegrees(value) | 0) + " cm";
+                if (meshCouch) {
+                    meshCouch.position.x = value;
+                    meshGuy.position.x = value;
+                }
+            });
+            panel.addControl(slidertranslll);
+
+            
+            
             
             var htranssl = new BABYLON.GUI.TextBlock();
             htranssl.text = "TENSION DU TUBE: 0 V";
@@ -322,6 +413,15 @@
                     meshCouch.rotation.z = 0;
                 }
                 
+                slidertransll.value = 0;
+                if (meshCouch) {
+                    meshCouch.rotation.y = 0;
+                }
+                
+                slidertranslll.value = 0;
+                if (meshCouch) {
+                    meshCouch.rotation.x = 0;
+                }
 
                    slidertranssl.value = 0;
                    if (meshCouch) {
@@ -348,6 +448,8 @@
                     "LAORAO": BABYLON.Tools.ToDegrees(sliderLAORAO.value),
                     "CAUCRA": BABYLON.Tools.ToDegrees(sliderCAUCRA.value),
                     "TRANSLATION X": BABYLON.Tools.ToDegrees(slidertransl.value),
+                    "TRANSLATION Y": BABYLON.Tools.ToDegrees(slidertransll.value),
+                    "TRANSLATION Z": BABYLON.Tools.ToDegrees(slidertranslll.value),
                     "TENSION DU TUBE": BABYLON.Tools.ToDegrees(slidertranssl.value),
                 };
                 var address = "/get-fake-mip-scattering";
