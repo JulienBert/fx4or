@@ -1,5 +1,11 @@
 from flask import Flask, render_template, request, make_response, jsonify
-from static.api.tools import getFakeMIPScatteringMap
+
+import torch
+import SimpleITK as sitk 
+from static.api.demo_inference_single import pad_3D_array, load_patient_mhd , output_to_itk
+from static.api.fluence_net import fluence_net_v2
+import numpy as np
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 # app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -9,28 +15,82 @@ def homepage():
     return render_template('index.html')
 
 @app.route('/get-fake-mip-scattering', methods=['POST'])
+
 def getFakeMip():
     request_data = request.get_json()
    
-    laorao = request_data['LAORAO']
-    caucra = request_data['CAUCRA']
+    o = request_data['LAORAO']
+    a = request_data['CAUCRA']
+    x = request_data['TRANSLATION X']
+    y = request_data['TRANSLATION Y']
+    z = request_data['TRANSLATION Z']
+    kvp = request_data['TENSION DU TUBE']
+    print(kvp)
+    print("Get POST: request fake MIP for laorao ", o, " and caucra ", a , "x", x, "y",y, "z", z, "Tension du tube", kvp)
+    
+    print(o)
 
-    print("Get POST: request fake MIP for laorao ", laorao, " and caucra ", caucra)
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') 
+    patient = 5
 
-    # Compute the map
-    data, sizex, sizey, dtype = getFakeMIPScatteringMap()
+    input_dimensions = (100,100,100)
+    
+    ## Model loading
+    model = fluence_net_v2(image_shape = input_dimensions,
+                                       init_filters=4, n_params=6,
+                                       inference_mode=True)  
+    model_wts = "model.pt"
 
-    msg = {
-        "status": "Done",
-        "sizex": sizex,
-        "sizey": sizey,
-        "dtype": dtype,
-        "data": data,
-    }
+    checkpoint = torch.load(model_wts)
+    model.load_state_dict(checkpoint)
+    model.to(device)        
 
-    response = make_response(jsonify(msg))
+   ## Read the patient input as numpy array and then convert to Tensor
+    ct_scan = torch.from_numpy(load_patient_mhd("patient_images/image_{}_resampled.mhd".format(patient),
+                                          input_dimensions = input_dimensions))
 
-    return response
+	 ## Create a Tensor with the parameters
+
+    # device ="CPU"
+    count = 0;t=0
+    
+    ct_scan = ct_scan.to(device);#print(x.shape)
+    N_REPETITIONS = 5000
+    print("start")
+    
+    save_file_root= "output/scatter_map_patient_" +str(patient) + \
+    "_orbital_" + str(o) + "_angular_" + str(a) + "_kvp_" + \
+    str(kvp) + "_x_" + str(x) +"_y_" + str(y)+"_z_"+str(z)
+    
+   
+    with torch.no_grad():
+        
+        param = torch.FloatTensor([o,a,x,y,z,kvp],)
+        param = param[None,:]        
+            
+        param = param.to(device)
+        y_pred = model(ct_scan,param).cpu().numpy()[0][0];
+                
+            
+        sitk.WriteImage(output_to_itk(y_pred),save_file_root+".mhd") ## Save as mhd
+        np.save(save_file_root+".npy",y_pred ) # save as numpy
+        
+    doseSlice = y_pred[10, :, :]
+
+    plt.imshow(doseSlice, cmap='jet')
+    plt.colorbar(label="Color Ratio")
+
+  
+    cmap = plt.cm.jet
+    plt.imsave('static/img/test1.png', doseSlice, cmap=cmap)
+    plt.show()
+    
+    
+    
+        
+    return ("fine")
+
+
 
 # Example
 @app.route('/json-example', methods=['POST'])
