@@ -189,7 +189,7 @@
             //Test
             
            var mat = new BABYLON.StandardMaterial("materiau_1",scene);
-           mat.diffuseTexture=new BABYLON.Texture("static/img/test.png",scene); 
+           mat.diffuseTexture=new BABYLON.Texture("fx4or-mastersauvegarde/test.png",scene); 
            mat.diffuseTexture.hasAlpha = true;
          
 
@@ -371,8 +371,8 @@
             
             
             var slidertranssl = new BABYLON.GUI.Slider();
-            slidertranssl.minimum = BABYLON.Tools.ToRadians(0);
-            slidertranssl.maximum = BABYLON.Tools.ToRadians(100);
+            slidertranssl.minimum = BABYLON.Tools.ToRadians(70);
+            slidertranssl.maximum = BABYLON.Tools.ToRadians(120);
             slidertranssl.value = 0;
             slidertranssl.height = "20px";
             slidertranssl.width = "200px";
@@ -436,24 +436,91 @@
             });
             panel.addControl(butReset);
 
+
+
+            var button = BABYLON.GUI.Button.CreateSimpleButton("but", "Premier Test");
+            button.width = "150px"
+            button.height = "40px";
+            button.color = "white";
+            button.cornerRadius = 20;
+            button.background = "blue";
+            
+            button.onPointerUpObservable.add(function() {
+               
+               var ground = BABYLON.Mesh.CreateGround("ground1", 2, 2, 0, scene);
+
+
+                backgroundMaterial.diffuseTexture = new BABYLON.Texture("static/img/test1.png", scene);
+                
+                ground.material = backgroundMaterial;
+                ground.position.y = 0.002;
+                ground.position.x = -0.7;
+                
+            
+            });
+            panel.addControl(button);  
+            
+            
+            
+            
+            
+            let x = new BABYLON.GUI.TextBlock('TextBlock', '5'); 
+
+            var rect1 = new BABYLON.GUI.Rectangle();
+            rect1.width = 0.03;
+            rect1.horizontalAlignment = 0;
+            rect1.verticalAlignment = 2;
+            rect1.height = "40px";
+            rect1.cornerRadius = 10;
+            rect1.color = "black";
+            rect1.thickness = 4;
+            rect1.background = "grey";
+            advancedTexture.addControl(rect1);
+            rect1.addControl(x);
+            
+            var count = 5;
+
+            
+
             var butGet = BABYLON.GUI.Button.CreateSimpleButton("butGet", "Get");
             butGet.width = "150px"
             butGet.height = "40px";
             butGet.color = "black";
             butGet.cornerRadius = 20;
             butGet.background = "yellow";
+            
+            
+            
+            
+         
+            
             butGet.onPointerUpObservable.add(function() {
                 
+                scene.onBeforeRenderObservable.add((thisScene, state) => {
+                    if (!thisScene.deltaTime) return;
+                    count -= (thisScene.deltaTime / 1000);
+                    if (count <= 0) {
+                        count = 0;
+                    }
+                    x.text = String(Math.round(count));
+                    
+                });
+                count = 5
                 var msg = {
+                
                     "LAORAO": BABYLON.Tools.ToDegrees(sliderLAORAO.value),
                     "CAUCRA": BABYLON.Tools.ToDegrees(sliderCAUCRA.value),
                     "TRANSLATION X": BABYLON.Tools.ToDegrees(slidertransl.value),
                     "TRANSLATION Y": BABYLON.Tools.ToDegrees(slidertransll.value),
                     "TRANSLATION Z": BABYLON.Tools.ToDegrees(slidertranslll.value),
                     "TENSION DU TUBE": BABYLON.Tools.ToDegrees(slidertranssl.value),
+                    
                 };
+                
+                
+                
                 var address = "/get-fake-mip-scattering";
-
+               
                 let promise = sendJSONRequest(msg, address);
                 promise.then(
                     response => {
