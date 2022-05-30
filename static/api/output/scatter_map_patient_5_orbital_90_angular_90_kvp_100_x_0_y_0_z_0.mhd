@@ -1,0 +1,13 @@
+ObjectType = Image
+NDims = 3
+BinaryData = True
+BinaryDataByteOrderMSB = False
+CompressedData = False
+TransformMatrix = 1 0 0 0 1 0 0 0 1
+Offset = 0 0 0
+CenterOfRotation = 0 0 0
+AnatomicalOrientation = RAI
+ElementSpacing = 20 20 20
+DimSize = 100 100 100
+ElementType = MET_FLOAT
+ElementDataFile = scatter_map_patient_5_orbital_90_angular_90_kvp_100_x_0_y_0_z_0.raw

@@ -1,0 +1,13 @@
+ObjectType = Image
+NDims = 3
+BinaryData = True
+BinaryDataByteOrderMSB = False
+CompressedData = False
+TransformMatrix = 1 0 0 0 -1 0 0 0 -1
+Offset = 184 122 120
+CenterOfRotation = 0 0 0
+AnatomicalOrientation = RPS
+ElementSpacing = 4 4 2
+DimSize = 92 61 120
+ElementType = MET_SHORT
+ElementDataFile = patient01.raw

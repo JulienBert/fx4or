@@ -1,0 +1,9 @@
+ObjectType = Image
+NDims = 3
+BinaryData = True
+BinaryDataByteOrderMSB = False
+DimSize = 92 61 120
+ElementSpacing = 4 4 2
+Offset = 184 122 120
+ElementType = MET_UCHAR
+ElementDataFile = patient01-skin.raw
