@@ -7,7 +7,6 @@
         <link rel="icon" href="/static/img/favicon.ico" />
         <meta name="description" content="Fast x-ray exposure within operating room">
         <meta name="author" content="Julien Bert">
-    
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta http-equiv="Pragma" content="no-cache" />
         <meta http-equiv="Expires" content="0" />
@@ -433,36 +432,28 @@
                 if (meshC) {
                     meshC.rotation.z = BABYLON.Tools.ToRadians(180);
                 } 
+                
+                scene.onBeforeRenderObservable.add((thisScene1, state) => {
+                   
+                    
+                    var ground = BABYLON.Mesh.CreateGround("ground1", 2, 2, 0, scene);
+
+                    var backgroundMaterial = new BABYLON.BackgroundMaterial("backgroundMaterial", scene);
+                    backgroundMaterial.diffuseTexture = new BABYLON.Texture("static/img/test2.png", scene);
+
+                    ground.material = backgroundMaterial;
+                    ground.position.y = 0.001;
+                    ground.position.x = -0.7;
+                    
+                    
+                });
+                
+            window.location.reload(false)
             });
             panel.addControl(butReset);
 
 
 
-            var button = BABYLON.GUI.Button.CreateSimpleButton("but", "Premier Test");
-            button.width = "150px"
-            button.height = "40px";
-            button.color = "white";
-            button.cornerRadius = 20;
-            button.background = "blue";
-            
-            button.onPointerUpObservable.add(function() {
-               
-               var ground = BABYLON.Mesh.CreateGround("ground1", 2, 2, 0, scene);
-
-
-                backgroundMaterial.diffuseTexture = new BABYLON.Texture("static/img/test1.png", scene);
-                
-                ground.material = backgroundMaterial;
-                ground.position.y = 0.002;
-                ground.position.x = -0.7;
-                
-            
-            });
-            panel.addControl(button);  
-            
-            
-            
-            
             
             let x = new BABYLON.GUI.TextBlock('TextBlock', '5'); 
 
@@ -501,11 +492,22 @@
                     count -= (thisScene.deltaTime / 1000);
                     if (count <= 0) {
                         count = 0;
+                        var ground1 = BABYLON.Mesh.CreateGround("ground1", 2, 2, 0, scene);
+
+                        var backgroundMaterial = new BABYLON.BackgroundMaterial("backgroundMaterial", scene);
+                        backgroundMaterial.diffuseTexture = new BABYLON.Texture("static/img/test1.png", scene);
+
+                        ground1.material = backgroundMaterial;
+                        ground1.position.y = 0.001;
+                        ground1.position.x = -0.7;
+                        
                     }
                     x.text = String(Math.round(count));
                     
                 });
                 count = 5
+                
+                
                 var msg = {
                 
                     "LAORAO": BABYLON.Tools.ToDegrees(sliderLAORAO.value),
