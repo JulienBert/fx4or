@@ -75,17 +75,36 @@ def getFakeMip():
         sitk.WriteImage(output_to_itk(y_pred),save_file_root+".mhd") ## Save as mhd
         np.save(save_file_root+".npy",y_pred ) # save as numpy
         
-    doseSlice = y_pred[10, :, :]
+   ## doseSlice = y_pred[10, :, :] ## 
+  
+    doseSlice = np.amax( y_pred, axis = 1)
+    
+    aMIP = doseSlice.astype("uint8")
 
-    plt.imshow(doseSlice, cmap='jet')
+    from matplotlib.colors import LinearSegmentedColormap
+    cmm=LinearSegmentedColormap.from_list('my_colormap', ['#be0aff','#023e8a','#386641','#007f5f','#0aff99','#a1ff0a','#deff0a','#deff0a','#ffea00','#ffd670','#ffd670','#ff9500','#ff9000','#f26419','#bc3908','#bc3908','#bc3908','#dc2f02','#dc2f02','#dc2f02','#dc2f02','#ef2b2b','#ef2b2b','#ef2b2b','#de1616','#de1616','#de1616','#cd0000','#cd0000','#cd0000','#bb0000','#bb0000','#bb0000','#aa0000','#aa0000','#aa0000','#6a040f','#6a040f','#6a040f','#6a040f','#6a040f','#6a040f','#6a040f','#6a040f','#6a040f','#6a040f','#6a040f','#6a040f' ] , N=200) 
+
+
+
+    origin = 'lower'
+    
+    x, y = np.meshgrid(np.arange(100), np.arange(100))
+    z = aMIP
+    
+    fig1, ax2 = plt.subplots(constrained_layout=True)
+    
+    CS = ax2.contourf(x, y, z, 80,cmap=cmm, origin=origin)
+    
+    
+    CS2 = ax2.contour(CS, levels=CS.levels[::1],linewidths = 0.3, colors='k', origin=origin)
+    ax2.set_axis_off()
+    fig1.savefig('static/img/test1.png')
+    #plt.imsave('static/img/test1.png', doseSlice, vmin=1, vmax=255, cmap=cmm)
+
+    plt.imshow(doseSlice, vmin=1, vmax=200,cmap=cmm)
     plt.colorbar(label="Color Ratio")
 
-  
-    cmap = plt.cm.jet
-    plt.imsave('static/img/test1.png', doseSlice, cmap=cmap)
     plt.show()
-    
-    
     
         
     return ("fine")
