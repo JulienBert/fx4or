@@ -104,7 +104,8 @@
                 // Set rot to zero, especially quaternion rot (bigger priority than rotation function)
                 meshC.rotation = new BABYLON.Vector3(0, 0, 0);
                 // meshC.position = new BABYLON.Vector3(0, 0, 0);
-                // meshC.rotation.y = deg2rad(180);
+                //meshC.rotation.y = deg2rad(180);
+                
                 // meshC.position = new BABYLON.Vector3(-0.6084136962890625, 0.9484025239944458, 0);
                 meshC.setPivotPoint(new BABYLON.Vector3(-0.6084136962890625, 0.9484025239944458, 0));
                 
@@ -265,8 +266,8 @@
             panel.addControl(hLAORAO); 
 
             var sliderLAORAO = new BABYLON.GUI.Slider();
-            sliderLAORAO.minimum = BABYLON.Tools.ToRadians(140);
-            sliderLAORAO.maximum = BABYLON.Tools.ToRadians(220);
+            sliderLAORAO.minimum = BABYLON.Tools.ToRadians(90);
+            sliderLAORAO.maximum = BABYLON.Tools.ToRadians(270);
             sliderLAORAO.value = BABYLON.Tools.ToRadians(180);
             sliderLAORAO.height = "20px";
             sliderLAORAO.width = "200px";
@@ -433,28 +434,13 @@
                     meshC.rotation.z = BABYLON.Tools.ToRadians(180);
                 } 
                 
-                scene.onBeforeRenderObservable.add((thisScene1, state) => {
-                   
-                    
-                    var ground = BABYLON.Mesh.CreateGround("ground1", 2, 2, 0, scene);
-
-                    var backgroundMaterial = new BABYLON.BackgroundMaterial("backgroundMaterial", scene);
-                    backgroundMaterial.diffuseTexture = new BABYLON.Texture("static/img/test2.png", scene);
-
-                    ground.material = backgroundMaterial;
-                    ground.position.y = 0.001;
-                    ground.position.x = -0.7;
-                    
-                    
-                });
+               
                 
             window.location.reload(false)
             });
             panel.addControl(butReset);
 
 
-
-            
             let x = new BABYLON.GUI.TextBlock('TextBlock', '5'); 
 
             var rect1 = new BABYLON.GUI.Rectangle();
@@ -473,92 +459,85 @@
 
             
 
-            var butGet = BABYLON.GUI.Button.CreateSimpleButton("butGet", "Get");
-            butGet.width = "150px"
-            butGet.height = "40px";
-            butGet.color = "black";
-            butGet.cornerRadius = 20;
-            butGet.background = "yellow";
-            
-            
-            
-            
+             var butGet = BABYLON.GUI.Button.CreateSimpleButton("butGet", "Get");
+             butGet.width = "150px"
+             butGet.height = "40px";
+             butGet.color = "black";
+             butGet.cornerRadius = 20;
+             butGet.background = "yellow";
+             butGet.onPointerUpObservable.add(function() {
+             
+                 scene.onBeforeRenderObservable.add((thisScene, state) => {
+                     if (!thisScene.deltaTime) return;
+                     count -= (thisScene.deltaTime / 1000);
+                     if (count <= 0) {
+                         count = 0;
+                         var ground1 = BABYLON.Mesh.CreateGround("ground1", 2, 2, 0, scene);
+
+                         var backgroundMaterial = new BABYLON.BackgroundMaterial("backgroundMaterial", scene);
+                         backgroundMaterial.diffuseTexture = new BABYLON.Texture("static/img/test1.png", scene);
+
+                         ground1.material = backgroundMaterial;
+                         ground1.position.y = 0.001;
+                         ground1.position.x = -0.7;
+                         ground1.rotation.y = deg2rad(180);
+                         
+                     }
+                     x.text = String(Math.round(count));
+                     
+                 });
+                 count = 5
+             
+             
+             
+                 
+                 var msg = {
+                     "LAORAO": (BABYLON.Tools.ToDegrees(sliderLAORAO.value))-180,
+                     "CAUCRA": BABYLON.Tools.ToDegrees(sliderCAUCRA.value),
+                     "TRANSLATION X": BABYLON.Tools.ToDegrees(slidertransl.value),
+                     "TRANSLATION Y": BABYLON.Tools.ToDegrees(slidertransll.value),
+                     "TRANSLATION Z": BABYLON.Tools.ToDegrees(slidertranslll.value),
+                     "TENSION DU TUBE": BABYLON.Tools.ToDegrees(slidertranssl.value),
+                 };
+                 
+                 var address = "/get-fake-mip-scattering";
+
+                 let promise = sendJSONRequest(msg, address);
+                 promise.then(
+                     response => {
+                         console.log('This is the response: ', response);
+
+                         fluenceMapMatGrd.diffuseTexture = new BABYLON.RawTexture2DArray(response["data"], 
+                                                                                         response["sizex"], 
+                                                                                         response["sizey"], 
+                                                                                         3, BABYLON.Engine.TEXTUREFORMAT_RGB,
+                                                                                         scene,
+                                                                                         false,
+                                                                                         false,
+                                                                                         BABYLON.Texture.NEAREST_SAMPLINGMODE);
+                         // fluenceMapMatGrd.diffuseTexture = new BABYLON.Texture("/data/test_mip_y.png");
+                         // fluenceMapMatGrd.diffuseTexture.hasAlpha = true;
+
+                     },
+                     err => alert(err)
+                 );
+                 
+             });
+             panel.addControl(butGet);
+
+             return scene;
+         };
+
+         const scene = createScene(); //Call the createScene function
+
+         engine.runRenderLoop(function() {
+             scene.render();
+         });
          
-            
-            butGet.onPointerUpObservable.add(function() {
-                
-                scene.onBeforeRenderObservable.add((thisScene, state) => {
-                    if (!thisScene.deltaTime) return;
-                    count -= (thisScene.deltaTime / 1000);
-                    if (count <= 0) {
-                        count = 0;
-                        var ground1 = BABYLON.Mesh.CreateGround("ground1", 2, 2, 0, scene);
-
-                        var backgroundMaterial = new BABYLON.BackgroundMaterial("backgroundMaterial", scene);
-                        backgroundMaterial.diffuseTexture = new BABYLON.Texture("static/img/test1.png", scene);
-
-                        ground1.material = backgroundMaterial;
-                        ground1.position.y = 0.001;
-                        ground1.position.x = -0.7;
-                        
-                    }
-                    x.text = String(Math.round(count));
-                    
-                });
-                count = 5
-                
-                
-                var msg = {
-                
-                    "LAORAO": BABYLON.Tools.ToDegrees(sliderLAORAO.value),
-                    "CAUCRA": BABYLON.Tools.ToDegrees(sliderCAUCRA.value),
-                    "TRANSLATION X": BABYLON.Tools.ToDegrees(slidertransl.value),
-                    "TRANSLATION Y": BABYLON.Tools.ToDegrees(slidertransll.value),
-                    "TRANSLATION Z": BABYLON.Tools.ToDegrees(slidertranslll.value),
-                    "TENSION DU TUBE": BABYLON.Tools.ToDegrees(slidertranssl.value),
-                    
-                };
-                
-                
-                
-                var address = "/get-fake-mip-scattering";
-               
-                let promise = sendJSONRequest(msg, address);
-                promise.then(
-                    response => {
-                        console.log('This is the response: ', response);
-
-                        fluenceMapMatGrd.diffuseTexture = new BABYLON.RawTexture2DArray(response["data"], 
-                                                                                        response["sizex"], 
-                                                                                        response["sizey"], 
-                                                                                        3, BABYLON.Engine.TEXTUREFORMAT_RGB,
-                                                                                        scene,
-                                                                                        false,
-                                                                                        false,
-                                                                                        BABYLON.Texture.NEAREST_SAMPLINGMODE);
-                        // fluenceMapMatGrd.diffuseTexture = new BABYLON.Texture("/data/test_mip_y.png");
-                        // fluenceMapMatGrd.diffuseTexture.hasAlpha = true;
-
-                    },
-                    err => alert(err)
-                );
-                
-            });
-            panel.addControl(butGet);
-
-            return scene;
-        };
-
-        const scene = createScene(); //Call the createScene function
-
-        engine.runRenderLoop(function() {
-            scene.render();
-        });
-        
-        // Resize
-        window.addEventListener("resize", function () {
-            engine.resize();
-        });
+         // Resize
+         window.addEventListener("resize", function () {
+             engine.resize();
+         });
     </script>
 </body>
 </html>
