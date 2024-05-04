@@ -3,6 +3,9 @@ A fast X-ray scattering engine for operating room
 
 [![Generic badge](https://img.shields.io/badge/Python-3.7-blue.svg)](https://shields.io/)
 
+## Screenshots
+![Image text](./screen.png)
+
 ## Python version
 - python 3.10.4
 - pip 22.1
